@@ -7,86 +7,150 @@
 
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <title>Ingresar - Control Ventas</title>
+    <title>Iniciar sesión - Gestión Ventas</title>
 
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css"
           rel="stylesheet"
-          integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB"
           crossorigin="anonymous">
 
     <style>
 
         body{
-            background-image: url('/control_ventas/public/images/fondo.jpg');
+            min-height: 100vh;
+            background-image: url('/gestion_ventas/public/images/fondo.jpg');
             background-position: center;
             background-size: cover;
             background-repeat: no-repeat;
+        }
+
+        .login-container{
+            min-height: 100vh;
+            background: rgba(0, 0, 0, 0.25);
+        }
+
+        .login-card{
+            width: 100%;
+            max-width: 400px;
+            border: none;
+            border-radius: 18px;
+        }
+
+        .login-logo{
+            width: 85px;
+            height: 85px;
+            object-fit: contain;
+            margin-bottom: 12px;
+        }
+
+        .login-title{
+            font-weight: 600;
+        }
+
+        .form-control{
+            border-radius: 10px;
+            padding: 12px 14px;
+        }
+
+        .btn-login{
+            border-radius: 10px;
+            padding: 12px;
+            font-weight: 500;
         }
 
     </style>
 
 </head>
 
+
 <body>
 
-    <div class="container d-flex justify-content-center align-items-center"
-         style="height: 100vh;">
+    <div class="login-container d-flex justify-content-center align-items-center p-3">
 
-        <form action="/gestion_ventas/index.php?action=auth.login"
-              method="POST"
-              class="border rounded-3 p-4 bg-white shadow"
-              style="width: 25rem;">
+        <div class="card login-card shadow-lg">
 
-            <!-- Mensaje de alerta -->
+            <div class="card-body p-4 p-md-5">
 
-            <?php require_once("c://xampp/htdocs/gestion_ventas/views/layouts/alert.php"); ?>
 
-            <h2 class="mb-4 text-center">Control Ventas</h2>
+                <!-- 🔹 LOGO -->
+                <div class="text-center mb-4">
 
-            <div class="mb-3">
+                    <img src="/gestion_ventas/public/images/logo.png"
+                         alt="Logo"
+                         class="login-logo">
 
-                <label for="user" class="form-label">
-                    Usuario
-                </label>
+                    <h3 class="login-title mb-1">
+                        Iniciar sesión
+                    </h3>
 
-                <input type="text"
-                       class="form-control"
-                       id="user"
-                       name="user"
-                       required>
+                    <p class="text-muted mb-0">
+                        Gestión Ventas
+                    </p>
+
+                </div>
+
+
+                <!-- 🔹 ALERTA -->
+                <?php require_once("c://xampp/htdocs/gestion_ventas/views/layouts/alert.php"); ?>
+
+
+                <!-- 🔹 FORMULARIO -->
+                <form action="/gestion_ventas/index.php?action=auth.login"
+                      method="POST">
+
+
+                    <!-- Usuario -->
+                    <div class="mb-3">
+
+                        <label for="user" class="form-label">
+                            Usuario
+                        </label>
+
+                        <input type="text"
+                               class="form-control"
+                               id="user"
+                               name="user"
+                               placeholder="Ingresá tu usuario"
+                               autocomplete="username"
+                               required>
+
+                    </div>
+
+
+                    <!-- Contraseña -->
+                    <div class="mb-4">
+
+                        <label for="pass" class="form-label">
+                            Contraseña
+                        </label>
+
+                        <input type="password"
+                               class="form-control"
+                               id="pass"
+                               name="pass"
+                               placeholder="Ingresá tu contraseña"
+                               autocomplete="current-password"
+                               required>
+
+                    </div>
+
+
+                    <!-- Botón -->
+                    <div class="d-grid">
+
+                        <button type="submit"
+                                class="btn btn-primary btn-login">
+                            Ingresar
+                        </button>
+
+                    </div>
+
+                </form>
 
             </div>
 
-            <div class="mb-3">
-
-                <label for="pass" class="form-label">
-                    Contraseña
-                </label>
-
-                <input type="password"
-                       class="form-control"
-                       id="pass"
-                       name="pass"
-                       required>
-
-            </div>
-
-            <div class="d-grid">
-
-                <button type="submit" class="btn btn-primary">
-                    Ingresar
-                </button>
-
-            </div>
-
-        </form>
+        </div>
 
     </div>
-
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"
-            integrity="sha384-FKyoEForCGlyvwxH9j09JcYn3nv7wiPVlz7YYwJrVFcXK/BmnVDxM+D2scQbITxI"
-            crossorigin="anonymous">
-    </script>
 
 </body>
 

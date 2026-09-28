@@ -6,6 +6,7 @@ session_start();
 require_once("controllers/AuthController.php");
 require_once("controllers/PanelController.php");
 require_once("controllers/VentaController.php");
+require_once("controllers/UsuarioController.php");
 
 // Instancia auth
 $auth = new AuthController();
@@ -53,6 +54,31 @@ switch($action){
     // 📊 PANEL
     case "panel":
         (new PanelController())->index();
+        break;
+
+    // 👥 USUARIOS
+    case "usuarios":
+        (new UsuarioController())->index();
+        break;
+
+    case "usuarios.crear":
+        (new UsuarioController())->crear();
+        break;
+
+    case "usuarios.store":
+        (new UsuarioController())->store($_POST);
+        break;
+
+    case "usuarios.editar":
+        (new UsuarioController())->editar($_GET["id"]);
+        break;
+
+    case "usuarios.update":
+        (new UsuarioController())->update($_POST);
+        break;
+
+    case "usuarios.estado":
+        (new UsuarioController())->estado($_POST);
         break;
 
 
