@@ -19,11 +19,21 @@ class VentaModel{
 
         $sql = "SELECT
                     v.*,
-                    u.nombre AS vendedor_nombre
+                    u.nombre AS vendedor_nombre,
+
+                    (
+                        SELECT COUNT(*)
+                        FROM venta_comprobantes vc
+                        WHERE vc.venta_id = v.id
+                    ) AS cantidad_comprobantes
+
                 FROM ventas v
+
                 INNER JOIN usuarios u
                     ON v.vendedor_id = u.id
+
                 WHERE 1=1";
+
 
         $parametros = [];
 
@@ -44,7 +54,7 @@ class VentaModel{
                         v.cliente_nombre LIKE :buscar
                         OR v.cliente_dni LIKE :buscar
                         OR v.cliente_telefono LIKE :buscar
-                      )";
+                    )";
 
             $parametros[":buscar"] =
                 "%" . $filtros["buscar"] . "%";
@@ -113,7 +123,6 @@ class VentaModel{
 
         return $statement->fetchAll(PDO::FETCH_ASSOC);
     }
-
 
     // 👥 Obtener vendedores
     public function getVendedores(){
@@ -328,8 +337,7 @@ class VentaModel{
         $cliente_telefono,
         $monto,
         $cantidad_chances,
-        $medio_pago,
-        $comprobante
+        $medio_pago
     ){
 
         $statement = $this->PDO->prepare(
@@ -343,8 +351,7 @@ class VentaModel{
                 cliente_telefono,
                 monto,
                 cantidad_chances,
-                medio_pago,
-                comprobante
+                medio_pago
             )
             VALUES
             (
@@ -356,8 +363,7 @@ class VentaModel{
                 :cliente_telefono,
                 :monto,
                 :cantidad_chances,
-                :medio_pago,
-                :comprobante
+                :medio_pago
             )"
         );
 
@@ -368,30 +374,36 @@ class VentaModel{
             PDO::PARAM_INT
         );
 
+
         $statement->bindValue(
             ":cliente_nombre",
             $cliente_nombre
         );
+
 
         $statement->bindValue(
             ":cliente_dni",
             $cliente_dni
         );
 
+
         $statement->bindValue(
             ":cliente_direccion",
             $cliente_direccion
         );
+
 
         $statement->bindValue(
             ":cliente_telefono",
             $cliente_telefono
         );
 
+
         $statement->bindValue(
             ":monto",
             $monto
         );
+
 
         $statement->bindValue(
             ":cantidad_chances",
@@ -399,14 +411,10 @@ class VentaModel{
             PDO::PARAM_INT
         );
 
+
         $statement->bindValue(
             ":medio_pago",
             $medio_pago
-        );
-
-        $statement->bindValue(
-            ":comprobante",
-            $comprobante
         );
 
 

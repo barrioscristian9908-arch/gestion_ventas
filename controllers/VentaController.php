@@ -224,15 +224,12 @@ class VentaController{
             $data["medio_pago"] ?? "";
 
 
-        // 📎 Comprobante
-        $archivo =
-            $_FILES["comprobante"] ?? null;
-
-
         // 🔎 Validar datos obligatorios
+        // DNI es opcional
+        // Dirección es obligatoria
         if(
             $cliente_nombre === "" ||
-            $cliente_dni === "" ||
+            $cliente_direccion === "" ||
             $cliente_telefono === "" ||
             $monto === "" ||
             $cantidad_chances === "" ||
@@ -310,7 +307,8 @@ class VentaController{
             "Efectivo",
             "Transferencia",
             "Mercado Pago",
-            "Tarjeta"
+            "Tarjeta",
+            "Pago combinado"
         ];
 
 
@@ -330,156 +328,8 @@ class VentaController{
         }
 
 
-        // 📎 Verificar comprobante
-        if(
-            !$archivo ||
-            !isset($archivo["error"]) ||
-            $archivo["error"] !== UPLOAD_ERR_OK
-        ){
-
-            $_SESSION["mensaje"] =
-                "Tenés que adjuntar el comprobante";
-
-            $_SESSION["tipo"] =
-                "danger";
-
-            header(
-                "Location: /gestion_ventas/index.php?action=ventas.crear"
-            );
-
-            exit;
-        }
-
-
-        // 📦 Tamaño máximo: 5 MB
-        $maximo =
-            5 * 1024 * 1024;
-
-
-        if($archivo["size"] > $maximo){
-
-            $_SESSION["mensaje"] =
-                "El comprobante no puede superar los 5 MB";
-
-            $_SESSION["tipo"] =
-                "danger";
-
-            header(
-                "Location: /gestion_ventas/index.php?action=ventas.crear"
-            );
-
-            exit;
-        }
-
-
-        // 🔎 Detectar MIME real
-        $finfo =
-            new finfo(FILEINFO_MIME_TYPE);
-
-        $mime =
-            $finfo->file($archivo["tmp_name"]);
-
-
-        $tiposPermitidos = [
-
-            "image/jpeg" => "jpg",
-            "image/png"  => "png",
-            "application/pdf" => "pdf"
-
-        ];
-
-
-        if(!isset($tiposPermitidos[$mime])){
-
-            $_SESSION["mensaje"] =
-                "El comprobante debe ser JPG, PNG o PDF";
-
-            $_SESSION["tipo"] =
-                "danger";
-
-            header(
-                "Location: /gestion_ventas/index.php?action=ventas.crear"
-            );
-
-            exit;
-        }
-
-
-        // 📁 Carpeta por año/mes
-        $año =
-            date("Y");
-
-        $mes =
-            date("m");
-
-
-        $carpetaFisica =
-            "c://xampp/htdocs/gestion_ventas/public/uploads/comprobantes/"
-            . $año . "/"
-            . $mes . "/";
-
-
-        // Crear carpeta si no existe
-        if(!is_dir($carpetaFisica)){
-
-            if(!mkdir($carpetaFisica, 0755, true)){
-
-                $_SESSION["mensaje"] =
-                    "No se pudo crear la carpeta para el comprobante";
-
-                $_SESSION["tipo"] =
-                    "danger";
-
-                header(
-                    "Location: /gestion_ventas/index.php?action=ventas.crear"
-                );
-
-                exit;
-            }
-        }
-
-
-        // 🔐 Nombre único
-        $nombreArchivo =
-            bin2hex(random_bytes(16))
-            . "."
-            . $tiposPermitidos[$mime];
-
-
-        $rutaFisica =
-            $carpetaFisica
-            . $nombreArchivo;
-
-
-        // 💾 Mover archivo
-        if(!move_uploaded_file(
-            $archivo["tmp_name"],
-            $rutaFisica
-        )){
-
-            $_SESSION["mensaje"] =
-                "No se pudo guardar el comprobante";
-
-            $_SESSION["tipo"] =
-                "danger";
-
-            header(
-                "Location: /gestion_ventas/index.php?action=ventas.crear"
-            );
-
-            exit;
-        }
-
-
-        // 🗂️ Ruta que se guarda en la BD
-        $rutaBD =
-            "public/uploads/comprobantes/"
-            . $año . "/"
-            . $mes . "/"
-            . $nombreArchivo;
-
-
         // 💾 Guardar venta
+        // No se guarda ningún comprobante todavía
         $resultado =
             $this->model->crear(
                 $vendedor_id,
@@ -489,8 +339,7 @@ class VentaController{
                 $cliente_telefono,
                 $monto,
                 $cantidad_chances,
-                $medio_pago,
-                $rutaBD
+                $medio_pago
             );
 
 
@@ -510,13 +359,6 @@ class VentaController{
             exit;
 
         }else{
-
-            // Si falló la BD, eliminar el archivo
-            if(file_exists($rutaFisica)){
-
-                unlink($rutaFisica);
-            }
-
 
             $_SESSION["mensaje"] =
                 "No se pudo registrar la venta";

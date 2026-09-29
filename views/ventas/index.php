@@ -4,7 +4,6 @@
 
 <div class="container-fluid">
 
-```
 <div class="row">
 
     <!-- 🔹 SIDEBAR -->
@@ -172,6 +171,13 @@
                                     <?= ($_GET['medio_pago'] ?? '') === 'Tarjeta' ? 'selected' : ''; ?>>
 
                                     Tarjeta
+
+                                </option>
+
+                                <option value="Pago combinado"
+                                    <?= ($_GET['medio_pago'] ?? '') === 'Pago combinado' ? 'selected' : ''; ?>>
+
+                                    Pago combinado
 
                                 </option>
 
@@ -377,7 +383,7 @@
 
                                         <!-- ICONO -->
                                         <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center"
-                                             style="width: 45px; height: 45px; min-width: 45px;">
+                                            style="width: 45px; height: 45px; min-width: 45px;">
 
                                             🧾
 
@@ -397,7 +403,9 @@
                                             <div class="text-muted small">
 
                                                 DNI:
-                                                <?= htmlspecialchars($venta['cliente_dni']); ?>
+                                                <?= !empty($venta['cliente_dni'])
+                                                    ? htmlspecialchars($venta['cliente_dni'])
+                                                    : 'Sin DNI'; ?>
 
                                             </div>
 
@@ -532,22 +540,34 @@
                                     </div>
 
 
-                                    <!-- 🔹 COMPROBANTE -->
-                                    <?php if(!empty($venta['comprobante'])): ?>
+                                    <!-- 🔹 COMPROBANTES -->
+                                    <div class="mt-3 d-flex gap-2 flex-wrap">
 
-                                        <div class="mt-3">
+                                        <?php if(($venta['cantidad_comprobantes'] ?? 0) > 0): ?>
 
-                                            <a href="/gestion_ventas/<?= htmlspecialchars($venta['comprobante']); ?>"
-                                               target="_blank"
-                                               class="btn btn-sm btn-outline-primary">
+                                            <a href="/gestion_ventas/index.php?action=ventas.comprobantes&id=<?= (int)$venta['id']; ?>"
+                                            class="btn btn-sm btn-outline-primary">
 
-                                                📎 Ver comprobante
+                                                📎 Comprobantes
+                                                (<?= (int)$venta['cantidad_comprobantes']; ?>)
 
                                             </a>
 
-                                        </div>
+                                        <?php endif; ?>
 
-                                    <?php endif; ?>
+
+                                        <?php if(($_SESSION['rol'] ?? '') === 'vendedor'): ?>
+
+                                            <a href="/gestion_ventas/index.php?action=ventas.comprobante.agregar&id=<?= (int)$venta['id']; ?>"
+                                            class="btn btn-sm btn-outline-success">
+
+                                                ➕ Agregar comprobante
+
+                                            </a>
+
+                                        <?php endif; ?>
+
+                                    </div>
 
 
                                 </div>
@@ -586,7 +606,7 @@
                         <?php if(($_SESSION["rol"] ?? "") === "vendedor"): ?>
 
                             <a href="/gestion_ventas/index.php?action=ventas.crear"
-                               class="btn btn-primary">
+                            class="btn btn-primary">
 
                                 ➕ Registrar primera venta
 
