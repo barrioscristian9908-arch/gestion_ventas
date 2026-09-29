@@ -543,6 +543,20 @@
                                     <!-- 🔹 COMPROBANTES -->
                                     <div class="mt-3 d-flex gap-2 flex-wrap">
 
+                                        <?php if(
+                                            ($_SESSION['rol'] ?? '') === 'vendedor' &&
+                                            (int)$venta['vendedor_id'] === (int)$_SESSION['usuario_id']
+                                        ): ?>
+
+                                            <a href="/gestion_ventas/index.php?action=ventas.editar&id=<?= (int)$venta['id']; ?>"
+                                            class="btn btn-sm btn-outline-warning">
+
+                                                ✏️ Editar
+
+                                            </a>
+
+                                        <?php endif; ?>
+
                                         <?php if(($venta['cantidad_comprobantes'] ?? 0) > 0): ?>
 
                                             <a href="/gestion_ventas/index.php?action=ventas.comprobantes&id=<?= (int)$venta['id']; ?>"

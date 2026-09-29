@@ -94,7 +94,14 @@ switch($action){
     case "ventas.store":
         (new VentaController())->store($_POST);
         break;
+    
+    case "ventas.editar":
+        (new VentaController())->editar($_GET["id"]);
+        break;
 
+    case "ventas.update":
+        (new VentaController())->update($_POST);        
+        break;
 
     // 📊 REPORTES
     // Lo agregaremos cuando hagamos las comisiones

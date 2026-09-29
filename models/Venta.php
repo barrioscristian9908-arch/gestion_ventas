@@ -421,6 +421,123 @@ class VentaModel{
         return $statement->execute();
     }
 
+    public function getVentaPorId($id, $vendedor_id){
+
+        $statement = $this->PDO->prepare(
+            "SELECT
+                v.*,
+                u.nombre AS vendedor_nombre
+            FROM ventas v
+
+            INNER JOIN usuarios u
+                ON v.vendedor_id = u.id
+
+            WHERE v.id = :id
+            AND v.vendedor_id = :vendedor_id
+
+            LIMIT 1"
+        );
+
+
+        $statement->bindValue(
+            ":id",
+            $id,
+            PDO::PARAM_INT
+        );
+
+        $statement->bindValue(
+            ":vendedor_id",
+            $vendedor_id,
+            PDO::PARAM_INT
+        );
+
+
+        $statement->execute();
+
+        return $statement->fetch(PDO::FETCH_ASSOC);
+    }
+
+    public function actualizar(
+        $id,
+        $vendedor_id,
+        $cliente_nombre,
+        $cliente_dni,
+        $cliente_direccion,
+        $cliente_telefono,
+        $monto,
+        $cantidad_chances,
+        $medio_pago
+    ){
+
+        $statement = $this->PDO->prepare(
+            "UPDATE ventas
+
+            SET
+                cliente_nombre = :cliente_nombre,
+                cliente_dni = :cliente_dni,
+                cliente_direccion = :cliente_direccion,
+                cliente_telefono = :cliente_telefono,
+                monto = :monto,
+                cantidad_chances = :cantidad_chances,
+                medio_pago = :medio_pago
+
+            WHERE id = :id
+            AND vendedor_id = :vendedor_id"
+        );
+
+
+        $statement->bindValue(
+            ":cliente_nombre",
+            $cliente_nombre
+        );
+
+        $statement->bindValue(
+            ":cliente_dni",
+            $cliente_dni
+        );
+
+        $statement->bindValue(
+            ":cliente_direccion",
+            $cliente_direccion
+        );
+
+        $statement->bindValue(
+            ":cliente_telefono",
+            $cliente_telefono
+        );
+
+        $statement->bindValue(
+            ":monto",
+            $monto
+        );
+
+        $statement->bindValue(
+            ":cantidad_chances",
+            $cantidad_chances,
+            PDO::PARAM_INT
+        );
+
+        $statement->bindValue(
+            ":medio_pago",
+            $medio_pago
+        );
+
+        $statement->bindValue(
+            ":id",
+            $id,
+            PDO::PARAM_INT
+        );
+
+        $statement->bindValue(
+            ":vendedor_id",
+            $vendedor_id,
+            PDO::PARAM_INT
+        );
+
+
+        return $statement->execute();
+    }
+
 }
 
 ?>
