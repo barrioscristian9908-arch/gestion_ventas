@@ -632,6 +632,445 @@ class VentaController{
         }
     }
 
+    public function agregarComprobante($id){
+
+        $this->verificarLogin();
+
+        // Solamente vendedores
+        if(($_SESSION["rol"] ?? "") !== "vendedor"){
+
+            $_SESSION["mensaje"] =
+                "No tenés permisos para agregar comprobantes";
+
+            $_SESSION["tipo"] =
+                "danger";
+
+            header(
+                "Location: /gestion_ventas/index.php?action=ventas"
+            );
+
+            exit;
+        }
+
+
+        $vendedor_id =
+            $_SESSION["usuario_id"];
+
+
+        // Buscar la venta y verificar que sea del vendedor
+        $venta =
+            $this->model->getVentaPorId(
+                $id,
+                $vendedor_id
+            );
+
+
+        if(!$venta){
+
+            $_SESSION["mensaje"] =
+                "La venta no existe o no tenés permisos para modificarla";
+
+            $_SESSION["tipo"] =
+                "danger";
+
+            header(
+                "Location: /gestion_ventas/index.php?action=ventas"
+            );
+
+            exit;
+        }
+
+
+        require_once(
+            "c://xampp/htdocs/gestion_ventas/views/ventas/comprobante_agregar.php"
+        );
+    }
+
+    public function storeComprobante($data, $files){
+
+        $this->verificarLogin();
+
+        // Solamente vendedores
+        if(($_SESSION["rol"] ?? "") !== "vendedor"){
+
+            $_SESSION["mensaje"] =
+                "No tenés permisos para agregar comprobantes";
+
+            $_SESSION["tipo"] =
+                "danger";
+
+            header(
+                "Location: /gestion_ventas/index.php?action=ventas"
+            );
+
+            exit;
+        }
+
+
+        $vendedor_id =
+            $_SESSION["usuario_id"];
+
+
+        $venta_id =
+            $data["venta_id"] ?? "";
+
+
+        // Verificar que la venta exista y pertenezca al vendedor
+        $venta =
+            $this->model->getVentaPorId(
+                $venta_id,
+                $vendedor_id
+            );
+
+
+        if(!$venta){
+
+            $_SESSION["mensaje"] =
+                "La venta no existe o no tenés permisos para modificarla";
+
+            $_SESSION["tipo"] =
+                "danger";
+
+            header(
+                "Location: /gestion_ventas/index.php?action=ventas"
+            );
+
+            exit;
+        }
+
+
+        // Verificar archivo
+        if(
+            !isset($files["comprobante"]) ||
+            $files["comprobante"]["error"] !== UPLOAD_ERR_OK
+        ){
+
+            $_SESSION["mensaje"] =
+                "Seleccioná un comprobante válido";
+
+            $_SESSION["tipo"] =
+                "danger";
+
+            header(
+                "Location: /gestion_ventas/index.php?action=ventas.comprobante.agregar&id="
+                . (int)$venta_id
+            );
+
+            exit;
+        }
+
+
+        $archivo =
+            $files["comprobante"];
+
+
+        // 📁 Extensiones permitidas
+        $extensionesPermitidas = [
+            "jpg",
+            "jpeg",
+            "png",
+            "webp",
+            "pdf"
+        ];
+
+
+        $extension =
+            strtolower(
+                pathinfo(
+                    $archivo["name"],
+                    PATHINFO_EXTENSION
+                )
+            );
+
+
+        if(!in_array($extension, $extensionesPermitidas, true)){
+
+            $_SESSION["mensaje"] =
+                "El archivo debe ser JPG, JPEG, PNG, WEBP o PDF";
+
+            $_SESSION["tipo"] =
+                "danger";
+
+            header(
+                "Location: /gestion_ventas/index.php?action=ventas.comprobante.agregar&id="
+                . (int)$venta_id
+            );
+
+            exit;
+        }
+
+
+        // 📦 Tamaño máximo: 10 MB
+        if($archivo["size"] > 10 * 1024 * 1024){
+
+            $_SESSION["mensaje"] =
+                "El comprobante no puede superar los 10 MB";
+
+            $_SESSION["tipo"] =
+                "danger";
+
+            header(
+                "Location: /gestion_ventas/index.php?action=ventas.comprobante.agregar&id="
+                . (int)$venta_id
+            );
+
+            exit;
+        }
+
+
+        // 📁 Carpeta de comprobantes
+        $carpeta =
+            "c://xampp/htdocs/gestion_ventas/uploads/comprobantes/";
+
+
+        // Crear carpeta si no existe
+        if(!is_dir($carpeta)){
+
+            mkdir(
+                $carpeta,
+                0777,
+                true
+            );
+        }
+
+
+        // 🔐 Nombre único
+        $nombreArchivo =
+            uniqid("comprobante_", true)
+            . "."
+            . $extension;
+
+
+        $rutaDestino =
+            $carpeta . $nombreArchivo;
+
+
+        // 📤 Mover archivo
+        if(!move_uploaded_file(
+            $archivo["tmp_name"],
+            $rutaDestino
+        )){
+
+            $_SESSION["mensaje"] =
+                "No se pudo guardar el comprobante";
+
+            $_SESSION["tipo"] =
+                "danger";
+
+            header(
+                "Location: /gestion_ventas/index.php?action=ventas.comprobante.agregar&id="
+                . (int)$venta_id
+            );
+
+            exit;
+        }
+
+
+        // 💾 Guardar registro en BD
+        $resultado =
+            $this->model->agregarComprobante(
+                $venta_id,
+                $nombreArchivo
+            );
+
+
+        if($resultado){
+
+            $_SESSION["mensaje"] =
+                "Comprobante agregado correctamente";
+
+            $_SESSION["tipo"] =
+                "success";
+
+            header(
+                "Location: /gestion_ventas/index.php?action=ventas"
+            );
+
+            exit;
+
+        }
+
+
+        // Si falló la BD, eliminar el archivo que acabamos de subir
+        if(file_exists($rutaDestino)){
+
+            unlink($rutaDestino);
+        }
+
+
+        $_SESSION["mensaje"] =
+            "No se pudo registrar el comprobante";
+
+        $_SESSION["tipo"] =
+            "danger";
+
+        header(
+            "Location: /gestion_ventas/index.php?action=ventas.comprobante.agregar&id="
+            . (int)$venta_id
+        );
+
+        exit;
+    }
+
+    public function comprobantes($id){
+
+        $this->verificarLogin();
+
+        $rol =
+            $_SESSION["rol"] ?? "";
+
+        $vendedor_id =
+            $_SESSION["usuario_id"];
+
+
+        // Buscar la venta
+        if($rol === "vendedor"){
+
+            // El vendedor solamente puede ver sus propias ventas
+            $venta =
+                $this->model->getVentaPorId(
+                    $id,
+                    $vendedor_id
+                );
+
+        }else{
+
+            // Admin y operador pueden ver cualquier venta
+            $venta =
+                $this->model->getVentaPorIdAdmin($id);
+
+        }
+
+
+        if(!$venta){
+
+            $_SESSION["mensaje"] =
+                "La venta no existe o no tenés permisos para verla";
+
+            $_SESSION["tipo"] =
+                "danger";
+
+            header(
+                "Location: /gestion_ventas/index.php?action=ventas"
+            );
+
+            exit;
+        }
+
+
+        // Obtener comprobantes
+        $comprobantes =
+            $this->model->getComprobantes($id);
+
+
+        require_once(
+            "c://xampp/htdocs/gestion_ventas/views/ventas/comprobantes.php"
+        );
+    }
+
+    public function eliminarComprobante($id){
+
+        $this->verificarLogin();
+
+
+        // Solamente vendedores
+        if(($_SESSION["rol"] ?? "") !== "vendedor"){
+
+            $_SESSION["mensaje"] =
+                "No tenés permisos para eliminar comprobantes";
+
+            $_SESSION["tipo"] =
+                "danger";
+
+            header(
+                "Location: /gestion_ventas/index.php?action=ventas"
+            );
+
+            exit;
+        }
+
+
+        $vendedor_id =
+            $_SESSION["usuario_id"];
+
+
+        // Buscar comprobante y comprobar que pertenece
+        // a una venta del vendedor
+        $comprobante =
+            $this->model->getComprobantePorId(
+                $id,
+                $vendedor_id
+            );
+
+
+        if(!$comprobante){
+
+            $_SESSION["mensaje"] =
+                "El comprobante no existe o no tenés permisos para eliminarlo";
+
+            $_SESSION["tipo"] =
+                "danger";
+
+            header(
+                "Location: /gestion_ventas/index.php?action=ventas"
+            );
+
+            exit;
+        }
+
+
+        // Ruta física del archivo
+        $rutaArchivo =
+            "c://xampp/htdocs/gestion_ventas/uploads/comprobantes/"
+            . $comprobante["archivo"];
+
+
+        // Eliminar archivo físico
+        if(file_exists($rutaArchivo)){
+
+            unlink($rutaArchivo);
+        }
+
+
+        // Eliminar registro de BD
+        $resultado =
+            $this->model->eliminarComprobante(
+                $id,
+                $vendedor_id
+            );
+
+
+        if($resultado){
+
+            $_SESSION["mensaje"] =
+                "Comprobante eliminado correctamente";
+
+            $_SESSION["tipo"] =
+                "success";
+
+        }else{
+
+            $_SESSION["mensaje"] =
+                "No se pudo eliminar el comprobante";
+
+            $_SESSION["tipo"] =
+                "danger";
+        }
+
+
+        // Volver a la venta
+        $venta_id =
+            $comprobante["venta_id"];
+
+
+        header(
+            "Location: /gestion_ventas/index.php?action=ventas.comprobantes&id="
+            . (int)$venta_id
+        );
+
+        exit;
+    }
+
 }
 
 ?>

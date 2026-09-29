@@ -538,6 +538,175 @@ class VentaModel{
         return $statement->execute();
     }
 
+    public function agregarComprobante(
+        $venta_id,
+        $archivo
+    ){
+
+        $statement = $this->PDO->prepare(
+            "INSERT INTO venta_comprobantes
+            (
+                venta_id,
+                archivo
+            )
+            VALUES
+            (
+                :venta_id,
+                :archivo
+            )"
+        );
+
+
+        $statement->bindValue(
+            ":venta_id",
+            $venta_id,
+            PDO::PARAM_INT
+        );
+
+
+        $statement->bindValue(
+            ":archivo",
+            $archivo
+        );
+
+
+        return $statement->execute();
+    }
+
+    public function getVentaPorIdAdmin($id){
+
+        $statement = $this->PDO->prepare(
+            "SELECT
+                v.*,
+                u.nombre AS vendedor_nombre
+            FROM ventas v
+
+            INNER JOIN usuarios u
+                ON v.vendedor_id = u.id
+
+            WHERE v.id = :id
+
+            LIMIT 1"
+        );
+
+
+        $statement->bindValue(
+            ":id",
+            $id,
+            PDO::PARAM_INT
+        );
+
+
+        $statement->execute();
+
+        return $statement->fetch(PDO::FETCH_ASSOC);
+    }
+
+    public function getComprobantes($venta_id){
+
+        $statement = $this->PDO->prepare(
+            "SELECT
+                id,
+                venta_id,
+                archivo,
+                creado_en
+
+            FROM venta_comprobantes
+
+            WHERE venta_id = :venta_id
+
+            ORDER BY creado_en DESC"
+        );
+
+
+        $statement->bindValue(
+            ":venta_id",
+            $venta_id,
+            PDO::PARAM_INT
+        );
+
+
+        $statement->execute();
+
+        return $statement->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    public function getComprobantePorId(
+        $id,
+        $vendedor_id
+    ){
+
+        $statement = $this->PDO->prepare(
+            "SELECT
+                vc.*,
+                v.vendedor_id
+
+            FROM venta_comprobantes vc
+
+            INNER JOIN ventas v
+                ON vc.venta_id = v.id
+
+            WHERE vc.id = :id
+            AND v.vendedor_id = :vendedor_id
+
+            LIMIT 1"
+        );
+
+
+        $statement->bindValue(
+            ":id",
+            $id,
+            PDO::PARAM_INT
+        );
+
+
+        $statement->bindValue(
+            ":vendedor_id",
+            $vendedor_id,
+            PDO::PARAM_INT
+        );
+
+
+        $statement->execute();
+
+        return $statement->fetch(PDO::FETCH_ASSOC);
+    }
+
+    public function eliminarComprobante(
+        $id,
+        $vendedor_id
+    ){
+
+        $statement = $this->PDO->prepare(
+            "DELETE vc
+
+            FROM venta_comprobantes vc
+
+            INNER JOIN ventas v
+                ON vc.venta_id = v.id
+
+            WHERE vc.id = :id
+            AND v.vendedor_id = :vendedor_id"
+        );
+
+
+        $statement->bindValue(
+            ":id",
+            $id,
+            PDO::PARAM_INT
+        );
+
+
+        $statement->bindValue(
+            ":vendedor_id",
+            $vendedor_id,
+            PDO::PARAM_INT
+        );
+
+
+        return $statement->execute();
+    }
+
 }
 
 ?>

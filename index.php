@@ -103,6 +103,22 @@ switch($action){
         (new VentaController())->update($_POST);        
         break;
 
+    case "ventas.comprobante.agregar":
+        (new VentaController())->agregarComprobante($_GET["id"]);
+        break;
+
+    case "ventas.comprobante.store":
+        (new VentaController())->storeComprobante($_POST, $_FILES);
+        break;
+
+    case "ventas.comprobantes":
+        (new VentaController())->comprobantes($_GET["id"]);
+        break;
+
+    case "ventas.comprobante.eliminar":
+        (new VentaController())->eliminarComprobante($_GET["id"]);
+        break;
+
     // 📊 REPORTES
     // Lo agregaremos cuando hagamos las comisiones
     /*
