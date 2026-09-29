@@ -42,11 +42,35 @@
                         <div class="card-body">
 
                             <h6 class="text-muted">
-                                Mis ventas
+                                <?php if($_SESSION["rol"] === "vendedor"): ?>
+                                    Mis ventas
+                                <?php else: ?>
+                                    Total de ventas
+                                <?php endif; ?>
                             </h6>
 
                             <h3 class="mb-0">
-                                <?= $totalVentas ?? 0; ?>
+
+                                <?php
+
+                                if($_SESSION["rol"] === "vendedor"){
+
+                                    $totalVentas =
+                                        $this->model->getTotalVentas(
+                                            $_SESSION["usuario_id"]
+                                        );
+
+                                }else{
+
+                                    $totalVentas =
+                                        $this->model->getTotalVentas();
+
+                                }
+
+                                echo (int)$totalVentas;
+
+                                ?>
+
                             </h3>
 
                         </div>
@@ -61,11 +85,40 @@
                         <div class="card-body">
 
                             <h6 class="text-muted">
-                                Total vendido
+                                <?php if($_SESSION["rol"] === "vendedor"): ?>
+                                    Total vendido
+                                <?php else: ?>
+                                    Total vendido
+                                <?php endif; ?>
                             </h6>
 
                             <h3 class="mb-0">
-                                $<?= number_format($totalMonto ?? 0, 2, ',', '.'); ?>
+
+                                <?php
+
+                                if($_SESSION["rol"] === "vendedor"){
+
+                                    $totalMonto =
+                                        $this->model->getTotalMonto(
+                                            $_SESSION["usuario_id"]
+                                        );
+
+                                }else{
+
+                                    $totalMonto =
+                                        $this->model->getTotalMonto();
+
+                                }
+
+                                echo '$ ' . number_format(
+                                    $totalMonto,
+                                    2,
+                                    ',',
+                                    '.'
+                                );
+
+                                ?>
+
                             </h3>
 
                         </div>
@@ -136,9 +189,10 @@
 
                         <?php if(($_SESSION["rol"] ?? "") === "admin"): ?>
 
-                            <button class="btn btn-outline-secondary" disabled>
+                            <a href="/gestion_ventas/index.php?action=usuarios"
+                            class="btn btn-primary">
                                 👥 Gestionar usuarios
-                            </button>
+                            </a>
 
                             <button class="btn btn-outline-secondary" disabled>
                                 📊 Reportes
