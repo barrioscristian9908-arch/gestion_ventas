@@ -707,6 +707,226 @@ class VentaModel{
         return $statement->execute();
     }
 
+    public function getReporteResumen(
+        $desde,
+        $hasta,
+        $vendedor_id = ""
+    ){
+
+        $sql = "SELECT
+
+                    COUNT(*) AS total_ventas,
+
+                    COALESCE(
+                        SUM(monto),
+                        0
+                    ) AS total_monto,
+
+                    COALESCE(
+                        SUM(cantidad_chances),
+                        0
+                    ) AS total_chances,
+
+                    COALESCE(
+                        AVG(monto),
+                        0
+                    ) AS promedio_venta
+
+                FROM ventas
+
+                WHERE DATE(creado_en) >= :desde
+
+                AND DATE(creado_en) <= :hasta";
+
+
+        $parametros = [
+
+            ":desde" => $desde,
+
+            ":hasta" => $hasta
+
+        ];
+
+
+        if(
+            $vendedor_id !== "" &&
+            $vendedor_id !== null
+        ){
+
+            $sql .= "
+                AND vendedor_id = :vendedor_id
+            ";
+
+            $parametros[":vendedor_id"] =
+                $vendedor_id;
+
+        }
+
+
+        $statement =
+            $this->PDO->prepare($sql);
+
+
+        foreach(
+            $parametros
+            as $parametro => $valor
+        ){
+
+            $statement->bindValue(
+                $parametro,
+                $valor
+            );
+
+        }
+
+
+        $statement->execute();
+
+
+        return $statement->fetch(
+            PDO::FETCH_ASSOC
+        );
+
+    }
+
+    public function getReporteMedioPago(
+        $desde,
+        $hasta,
+        $vendedor_id = ""
+    ){
+
+        $sql = "SELECT
+
+                    medio_pago,
+
+                    COUNT(*) AS cantidad,
+
+                    COALESCE(
+                        SUM(monto),
+                        0
+                    ) AS total
+
+                FROM ventas
+
+                WHERE DATE(creado_en) >= :desde
+
+                AND DATE(creado_en) <= :hasta";
+
+
+        $parametros = [
+
+            ":desde" => $desde,
+
+            ":hasta" => $hasta
+
+        ];
+
+
+        if(
+            $vendedor_id !== "" &&
+            $vendedor_id !== null
+        ){
+
+            $sql .= "
+                AND vendedor_id = :vendedor_id
+            ";
+
+            $parametros[":vendedor_id"] =
+                $vendedor_id;
+
+        }
+
+
+        $sql .= "
+            GROUP BY medio_pago
+            ORDER BY total DESC
+        ";
+
+
+        $statement =
+            $this->PDO->prepare($sql);
+
+
+        foreach(
+            $parametros
+            as $parametro => $valor
+        ){
+
+            $statement->bindValue(
+                $parametro,
+                $valor
+            );
+
+        }
+
+
+        $statement->execute();
+
+
+        return $statement->fetchAll(
+            PDO::FETCH_ASSOC
+        );
+
+    }
+
+    public function getReporteVendedores(
+        $desde,
+        $hasta
+        ){
+
+            $statement = $this->PDO->prepare(
+
+                "SELECT
+
+                    u.nombre AS vendedor_nombre,
+
+                    COUNT(v.id) AS cantidad,
+
+                    COALESCE(
+                        SUM(v.monto),
+                        0
+                    ) AS total
+
+                FROM ventas v
+
+                INNER JOIN usuarios u
+                    ON v.vendedor_id = u.id
+
+                WHERE DATE(v.creado_en) >= :desde
+
+                AND DATE(v.creado_en) <= :hasta
+
+                GROUP BY
+                    v.vendedor_id,
+                    u.nombre
+
+                ORDER BY total DESC"
+
+            );
+
+
+            $statement->bindValue(
+                ":desde",
+                $desde
+            );
+
+
+            $statement->bindValue(
+                ":hasta",
+                $hasta
+            );
+
+
+            $statement->execute();
+
+
+            return $statement->fetchAll(
+                PDO::FETCH_ASSOC
+            );
+
+        }
+
+
 }
 
 ?>
