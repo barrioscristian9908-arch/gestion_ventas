@@ -88,6 +88,10 @@ switch($action){
     case "ventas":
         (new VentaController())->index();
         break;
+    
+    case "ventas.exportar":
+        (new VentaController())->exportar($_GET);
+        break;
 
     case "ventas.crear":
         (new VentaController())->crear();
@@ -120,6 +124,7 @@ switch($action){
     case "ventas.comprobante.eliminar":
         (new VentaController())->eliminarComprobante($_GET["id"]);
         break;
+
 
     // 📊 REPORTES
     case "reportes":

@@ -254,13 +254,12 @@
                                     ($_SESSION["rol"] ?? "") === "operador"
                                 ): ?>
 
-                                    <button type="button"
-                                            class="btn btn-success ms-sm-auto"
-                                            onclick="exportarExcel()">
-
+                                    <a
+                                        href="/gestion_ventas/index.php?action=ventas.exportar&buscar=<?= urlencode($filtros["buscar"] ?? ""); ?>&desde=<?= urlencode($filtros["desde"] ?? ""); ?>&hasta=<?= urlencode($filtros["hasta"] ?? ""); ?>&medio_pago=<?= urlencode($filtros["medio_pago"] ?? ""); ?>&vendedor_id=<?= urlencode($filtros["vendedor_id"] ?? ""); ?>"
+                                        class="btn btn-success ms-sm-auto"
+                                    >
                                         📥 Exportar a Excel
-
-                                    </button>
+                                    </a>
 
                                 <?php endif; ?>
 

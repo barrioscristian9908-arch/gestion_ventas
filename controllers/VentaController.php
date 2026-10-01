@@ -1071,6 +1071,261 @@ class VentaController{
         exit;
     }
 
+    // 📊 EXPORTAR VENTAS A EXCEL
+    public function exportar($filtros){
+
+        $this->verificarLogin();
+
+
+        $rol =
+            $_SESSION["rol"] ?? "";
+
+        $usuario_id =
+            $_SESSION["usuario_id"] ?? null;
+
+
+        // 🔐 VENDEDOR
+        // Solamente puede exportar sus propias ventas
+
+        if($rol === "vendedor"){
+
+            $ventas =
+                $this->model->getVentas(
+                    $filtros,
+                    $usuario_id
+                );
+
+        }
+
+
+        // 🛡️ ADMIN / OPERADOR
+
+        elseif(
+            $rol === "admin" ||
+            $rol === "operador"
+        ){
+
+            $ventas =
+                $this->model->getVentas(
+                    $filtros
+                );
+
+        }
+
+
+        // ❌ ROL INVÁLIDO
+
+        else{
+
+            $_SESSION["mensaje"] =
+                "No tenés permisos para exportar ventas";
+
+            $_SESSION["tipo"] =
+                "danger";
+
+            header(
+                "Location: /gestion_ventas/index.php?action=ventas"
+            );
+
+            exit;
+        }
+
+
+        // 📄 Nombre del archivo
+
+        $nombreArchivo =
+            "ventas_" .
+            date("Y-m-d_H-i-s") .
+            ".xls";
+
+
+        // 📥 Descargar como Excel
+
+        header(
+            "Content-Type: application/vnd.ms-excel; charset=UTF-8"
+        );
+
+        header(
+            "Content-Disposition: attachment; filename=\""
+            . $nombreArchivo
+            . "\""
+        );
+
+        header("Pragma: no-cache");
+
+        header("Expires: 0");
+
+
+        // UTF-8 para que Excel muestre correctamente
+        // acentos y caracteres especiales
+
+        echo "\xEF\xBB\xBF";
+
+
+        // 📊 Tabla
+
+        echo "<table border='1'>";
+
+
+        // ENCABEZADOS
+
+        echo "<tr>";
+
+        echo "<th>Fecha</th>";
+
+
+        if(
+            $rol === "admin" ||
+            $rol === "operador"
+        ){
+
+            echo "<th>Vendedor</th>";
+
+        }
+
+
+        echo "<th>Cliente</th>";
+
+        echo "<th>DNI</th>";
+
+        echo "<th>Dirección</th>";
+
+        echo "<th>Teléfono</th>";
+
+        echo "<th>Monto</th>";
+
+        echo "<th>Chances</th>";
+
+        echo "<th>Medio de pago</th>";
+
+        echo "</tr>";
+
+
+        // 📋 VENTAS
+
+        foreach($ventas as $venta){
+
+            echo "<tr>";
+
+
+            // Fecha
+
+            echo "<td>";
+
+            echo htmlspecialchars(
+                $venta["creado_en"]
+            );
+
+            echo "</td>";
+
+
+            // Vendedor
+
+            if(
+                $rol === "admin" ||
+                $rol === "operador"
+            ){
+
+                echo "<td>";
+
+                echo htmlspecialchars(
+                    $venta["vendedor_nombre"]
+                );
+
+                echo "</td>";
+
+            }
+
+
+            // Cliente
+
+            echo "<td>";
+
+            echo htmlspecialchars(
+                $venta["cliente_nombre"]
+            );
+
+            echo "</td>";
+
+
+            // DNI
+
+            echo "<td>";
+
+            echo htmlspecialchars(
+                $venta["cliente_dni"] ?? ""
+            );
+
+            echo "</td>";
+
+
+            // Dirección
+
+            echo "<td>";
+
+            echo htmlspecialchars(
+                $venta["cliente_direccion"]
+            );
+
+            echo "</td>";
+
+
+            // Teléfono
+
+            echo "<td>";
+
+            echo htmlspecialchars(
+                $venta["cliente_telefono"]
+            );
+
+            echo "</td>";
+
+
+            // Monto
+
+            echo "<td>";
+
+            echo number_format(
+                $venta["monto"],
+                2,
+                ",",
+                "."
+            );
+
+            echo "</td>";
+
+
+            // Chances
+
+            echo "<td>";
+
+            echo (int)$venta["cantidad_chances"];
+
+            echo "</td>";
+
+
+            // Medio de pago
+
+            echo "<td>";
+
+            echo htmlspecialchars(
+                $venta["medio_pago"]
+            );
+
+            echo "</td>";
+
+
+            echo "</tr>";
+
+        }
+
+
+        echo "</table>";
+
+
+        exit;
+    }
+
 }
 
 ?>
