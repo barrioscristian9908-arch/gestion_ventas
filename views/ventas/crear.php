@@ -332,13 +332,6 @@
                                             </option>
 
 
-                                            <option value="15000">
-
-                                                $15.000
-
-                                            </option>
-
-
                                             <option value="20000">
 
                                                 $20.000

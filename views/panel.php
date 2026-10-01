@@ -194,9 +194,10 @@
                                 👥 Gestionar usuarios
                             </a>
 
-                            <button class="btn btn-outline-secondary" disabled>
+                            <a href="/gestion_ventas/index.php?action=reportes"
+                            class="btn btn-primary"> 
                                 📊 Reportes
-                            </button>
+                            </a>
 
                         <?php endif; ?>
 

@@ -52,6 +52,15 @@
         <?php endif; ?>
 
 
+        <!-- COMISIONES -->
+        <li class="nav-item mb-2">
+            <a class="nav-link"
+               href="/gestion_ventas/index.php?action=comisiones">
+                💰 Comisiones
+            </a>
+        </li>
+
+
         <!-- USUARIOS -->
         <?php if(($_SESSION["rol"] ?? "") === "admin"): ?>
 
@@ -145,6 +154,17 @@
                 </li>
 
             <?php endif; ?>
+
+
+            <!-- COMISIONES -->
+            <li class="nav-item mb-2">
+
+                <a class="nav-link"
+                   href="/gestion_ventas/index.php?action=comisiones">
+                    💰 Comisiones
+                </a>
+
+            </li>
 
 
             <!-- USUARIOS -->

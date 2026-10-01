@@ -8,6 +8,7 @@ require_once("controllers/PanelController.php");
 require_once("controllers/VentaController.php");
 require_once("controllers/UsuarioController.php");
 require_once("controllers/ReportesController.php");
+require_once("controllers/ComisionesController.php");
 
 // Instancia auth
 $auth = new AuthController();
@@ -123,6 +124,11 @@ switch($action){
     // 📊 REPORTES
     case "reportes":
         (new ReportesController())->index();
+        break;
+
+    // 📊 COMISIONES
+    case "comisiones":
+        (new ComisionesController())->index();
         break;
 
 
